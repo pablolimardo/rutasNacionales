@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rutas Nacionales - Companion App</title>
+    <style>
+        /* ==========================================================================
+           VARIABLES Y ESTILOS GENERALES
+           ========================================================================== */
+        :root {
+            --bg-color: #12181f;
+            --card-bg: #1e2631;
+            --primary-yellow: #fbc02d;
+            --route-blue: #0277bd;
+            --accent-green: #2e7d32;
+            --accent-red: #e53935;
+            --text-light: #f5f5f5;
+            --text-muted: #b0bec5;
+            --border-radius: 16px;
+            --shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #18202a;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 2px solid #2a3545;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+        }
+
+        /* Header / Logotipo */
+        header {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .route-shield {
+            background: #ffffff;
+            color: #111;
+            width: 65px;
+            height: 70px;
+            clip-path: polygon(50% 0%, 100% 20%, 100% 80%, 50% 100%, 0% 80%, 0% 20%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--route-blue);
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .route-shield .top {
+            font-size: 0.6rem;
+            color: var(--route-blue);
+            letter-spacing: 1px;
+        }
+
+        .route-shield .number {
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #111;
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            color: var(--primary-yellow);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Pantalla de Configuración Inicial */
+        .setup-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+        }
+
+        .setup-title {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .player-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-player-count {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid var(--route-blue);
+            background: transparent;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-player-count.active {
+            background: var(--route-blue);
+            color: white;
+            transform: scale(1.08);
+            box-shadow: 0 0 12px rgba(2, 119, 189, 0.6);
+        }
+
+        .player-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .player-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-input-group span {
+            font-size: 0.85rem;
+            color: var(--primary-yellow);
+            width: 75px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .player-input-group input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #37474f;
+            background: #263238;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .player-input-group input:focus {
+            border-color: var(--primary-yellow);
+            background: #2e3d45;
+        }
+
+        /* Botones Principales */
+        .btn-main {
+            background: linear-gradient(135deg, var(--primary-yellow), #f57f17);
+            color: #111;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(251, 192, 45, 0.3);
+            transition: transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-main:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #37474f;
+            color: var(--text-muted);
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-secondary:active {
+            background: #263238;
+            color: var(--text-light);
+        }
+
+        /* Pantalla Principal del Juego */
+        .game-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Marcador de Turnos */
+        .turn-banner {
+            background: #263238;
+            border-left: 5px solid var(--primary-yellow);
+            padding: 10px 14px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .current-player-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-turn-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .player-turn-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary-yellow);
+        }
+
+        .player-score {
+            font-size: 0.8rem;
+            color: #81c784;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #37474f;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .status-badge.warning {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        /* Mazo de Tarjetas */
+        .card-area {
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            width: 100%;
+            height: 200px;
+            border-radius: 16px;
+            background: var(--card-bg);
+            border: 2px solid #37474f;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .card.location {
+            background: linear-gradient(145deg, #1e2836, #111823);
+            border-color: var(--route-blue);
+        }
+
+        .card.event-ypf {
+            background: linear-gradient(145deg, #003b6f, #001f3f);
+            border-color: #0088ff;
+        }
+
+        .card.event-pinchazo {
+            background: linear-gradient(145deg, #4a1212, #260808);
+            border-color: var(--accent-red);
+        }
+
+        .card-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .card-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            margin: 4px 0;
+            color: var(--text-light);
+        }
+
+        .card-subtitle {
+            font-size: 0.95rem;
+            color: var(--primary-yellow);
+            font-weight: 600;
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        .card-footer {
+            font-size: 0.75rem;
+            color: #78909c;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 6px;
+        }
+
+        /* Sección Dado Virtual Integrado */
+        .dice-section {
+            background: #1e2631;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #2e3b4e;
+        }
+
+        .dice-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dice {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 10px;
+            display: grid;
+            grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+            padding: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            transition: transform 0.1s ease;
+        }
+
+        .dot {
+            background-color: #222;
+            border-radius: 50%;
+            opacity: 0;
+            align-self: center;
+            justify-self: center;
+            width: 7px;
+            height: 7px;
+        }
+
+        .dot:nth-child(1) { grid-area: 1 / 1; }
+        .dot:nth-child(2) { grid-area: 1 / 3; }
+        .dot:nth-child(3) { grid-area: 2 / 2; }
+        .dot:nth-child(4) { grid-area: 3 / 1; }
+        .dot:nth-child(5) { grid-area: 3 / 3; }
+        .dot:nth-child(6) { grid-area: 2 / 1; }
+        .dot:nth-child(7) { grid-area: 2 / 3; }
+
+        .btn-dice {
+            background: #37474f;
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-dice:active {
+            background: #455a64;
+        }
+
+        .action-buttons-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Ventanas Modales */
+        .modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 24, 31, 0.96);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #2e3b4e;
+            padding-bottom: 8px;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-yellow);
+            font-size: 1.1rem;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #d1d5db;
+        }
+
+        .modal-body p {
+            margin-bottom: 6px;
+        }
+
+        .modal-body ul {
+            padding-left: 18px;
+            margin-bottom: 8px;
+        }
+
+        .modal-body li {
+            margin-bottom: 6px;
+        }
+
+        .rule-card {
+            background: #263238;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--route-blue);
+        }
+
+        .rule-card.gold {
+            border-left-color: var(--primary-yellow);
+            background: #2a2c20;
+        }
+
+        .rule-card h4 {
+            color: var(--primary-yellow);
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .log-item {
+            padding: 8px 12px;
+            background: #263238;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border-left: 3px solid var(--route-blue);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HEADER PRINCIPAL -->
+        <header>
+            <div class="route-shield">
+                <span class="top">RUTA</span>
+                <span class="number">40</span>
+            </div>
+            <h1>Rutas Nacionales</h1>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Companion App de Tablero</p>
+        </header>
+
+        <!-- ==========================================================================
+             1. PANTALLA DE CONFIGURACIÓN INICIAL
+             ========================================================================== -->
+        <div id="setup-screen" class="setup-screen">
+            <p class="setup-title">Seleccioná la cantidad de jugadores:</p>
+            
+            <div class="player-selector">
+                <button class="btn-player-count" onclick="setPlayerCount(2)">2</button>
+                <button class="btn-player-count active" onclick="setPlayerCount(3)">3</button>
+                <button class="btn-player-count" onclick="setPlayerCount(4)">4</button>
+                <button class="btn-player-count" onclick="setPlayerCount(5)">5</button>
+                <button class="btn-player-count" onclick="setPlayerCount(6)">6</button>
+            </div>
+
+            <div id="player-inputs" class="player-inputs">
+                <!-- Se genera dinámicamente desde JS -->
+            </div>
+
+            <button class="btn-main" onclick="startGame()">
+                🚗 Comenzar Viaje
+            </button>
+
+            <button class="btn-secondary" onclick="openModal('rules-modal')">
+                📖 Instrucciones del Juego
+            </button>
+        </div>
+
+        <!-- ==========================================================================
+             2. PANTALLA PRINCIPAL DEL JUEGO
+             ========================================================================== -->
+        <div id="game-screen" class="game-screen hidden">
+            
+            <!-- MARCADOR DE TURNO -->
+            <div class="turn-banner">
+                <div class="current-player-info">
+                    <span class="player-turn-label">Turno Actual</span>
+                    <span id="current-player-name" class="player-turn-name">Jugador 1</span>
+                    <span id="current-player-score" class="player-score">🏁 Ciudades visitadas: 0</span>
+                </div>
+                <div id="player-status" class="status-badge">En ruta</div>
+            </div>
+
+            <!-- MAZO Y ÁREA DE TARJETA -->
+            <div class="card-area">
+                <div id="card-display" class="card">
+                    <!-- Contenido dinámico del mazo -->
+                </div>
+            </div>
+
+            <!-- CONTROLES DE ACCIÓN EN EL TURNO -->
+            <div class="action-buttons-group">
+                <!-- Botón 1: Levantar Tarjeta (Si no tiene una activa) -->
+                <button id="btn-draw-card" class="btn-main" onclick="drawCard()">
+                    🎴 Levantar Tarjeta de Destino
+                </button>
+
+                <!-- Botón 2: Llegó al Destino (Si ya tiene una activa y alcanzó la ciudad) -->
+                <button id="btn-complete-destination" class="btn-main hidden" style="background: linear-gradient(135deg, var(--accent-green), #1b5e20); color: white;" onclick="completeCurrentDestination()">
+                    🏁 ¡Llegué a esta Ciudad!
+                </button>
+
+                <!-- Botón 3: Pasar Turno (Para seguir viajando o ceder el control) -->
+                <button id="btn-next-turn" class="btn-main hidden" style="background: linear-gradient(135deg, #0277bd, #01579b); color: white;" onclick="nextTurn()">
+                    ➡️ Siguiente Turno (Sigo Viajando)
+                </button>
+            </div>
+
+            <!-- DADO VIRTUAL INTEGRADO -->
+            <div class="dice-section">
+                <div>
+                    <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-light);">Dado Auxiliar</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">Para avanzar por las rutas</div>
+                </div>
+                <div class="dice-container">
+                    <div id="dice" class="dice">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <button class="btn-dice" onclick="rollDice()">🎲 Tirar</button>
+                </div>
+            </div>
+
+            <!-- BOTONES SECUNDARIOS -->
+            <div style="display: flex; gap: 8px; justify-content: space-between;">
+                <button class="btn-secondary" onclick="openModal('rules-modal')">📖 Reglas</button>
+                <button class="btn-secondary" onclick="openModal('history-modal')">📋 Historial</button>
+                <button class="btn-secondary" style="color: var(--accent-red); border-color: #5c2424;" onclick="openModal('reset-modal')">🔄 Reiniciar</button>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             3. MODAL DE INSTRUCCIONES / REGLAS DEL JUEGO COMPLETA
+             ========================================================================== -->
+        <div id="rules-modal" class="modal hidden">
+            <div class="modal-header">
+                <h3>Instrucciones de Juego</h3>
+                <button class="btn-secondary" onclick="closeModal('rules-modal')">✖ Cerrar</button>
+            </div>
+            <div class="modal-body">
+                <div class="rule-card gold">
+                    <h4>🏆 ¿Cómo se Gana el Juego?</h4>
+                    <p>El juego es una carrera de rutas por la Argentina. <b>Gana el jugador que primero complete la cantidad de ciudades de destino acordada</b> antes de comenzar la partida (por defecto 5 ciudades) o quien acumule más destinos visitados al finalizar el tiempo estipulado.</p>
+                </div>
+
+                <div class="rule-card">
+                    <h4>🎮 Variantes y Modos de Juego</h4>
+                    <ul>
+                        <li><b>Modo Clásico (5 Ciudades):</b> El formato tradicional. El primer jugador en alcanzar 5 destinos gana inmediatamente la partida.</li>
+                        <li><b>Modo Express (3 Ciudades):</b> Ideal para partidas rápidas de 15-20 minutos o para grupos de 5 o 6 jugadores.</li>
+                        <li><b>Modo Gran Recorrido (10 Ciudades):</b> Una partida larga y estratégica, recomendada para 2 a 3 jugadores.</li>
+                        <li><b>Modo Por Tiempo (Reloj):</b> Se acuerda un tiempo límite (ej. 30 minutos). Al finalizar el tiempo, el jugador con más ciudades en su contador se corona ganador. En caso de empate, gana quien esté más cerca de su ciudad activa.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>🔄 Pasos durante cada Turno</h4>
+                    <ul>
+                        <li><b>1. Obtener Destino:</b> Si no tenés una ciudad asignada en la app, presioná <b>"Levantar Tarjeta"</b>. Esa ciudad será tu objetivo obligatorio.</li>
+                        <li><b>2. Moverse en el Tablero:</b> Tirás el dado (físico o el virtual) y avanzás la cantidad de casilleros indicada dirigiéndote hacia esa ciudad.</li>
+                        <li><b>3. Si AÚN NO llegaste:</b> Presioná <b>"Siguiente Turno (Sigo Viajando)"</b>. La app mantendrá tu tarjeta guardada para tu próxima ronda.</li>
+                        <li><b>4. Si LLEGASTE a la Ciudad:</b> Presioná el botón verde <b>"¡Llegué a esta Ciudad!"</b>. La app sumará 1 punto a tu contador y podrás sacar una nueva tarjeta en tu siguiente turno.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>🎴 Eventos Especiales en el Mazo</h4>
+                    <ul>
+                        <li><b>Estación YPF:</b> Cargas combustible y obtenés un <b>tiro extra</b> inmediato.</li>
+                        <li><b>Pinchazo de Goma:</b> Imprevisto en la ruta. La app omitirá tu siguiente turno de forma automática.</li>
+                        <li><b>Auxilio ACA:</b> Asistencia mecánica que te otorga un avance extra de 2 casilleros de regalo.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             4. MODAL HISTORIAL DE JUEGO
+             ========================================================================== -->
+        <div id="history-modal" class="modal hidden">
+            <div class="modal-header">
+                <h3>Historial de Viaje</h3>
+                <button class="btn-secondary" onclick="closeModal('history-modal')">✖ Cerrar</button>
+            </div>
+            <div id="modal-log-body" class="modal-body">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             5. MODAL DE CONFIRMACIÓN DE REINICIO
+             ========================================================================== -->
+        <div id="reset-modal" class="modal hidden">
+            <div class="modal-header">
+                <h3 style="color: var(--accent-red);">Reiniciar Partida</h3>
+            </div>
+            <div class="modal-body" style="align-items: center; text-align: center; justify-content: center;">
+                <p style="font-size: 1.1rem; color: var(--text-light);">¿Estás seguro de que querés reiniciar la partida?</p>
+                <p style="color: var(--text-muted);">Se borrarán los jugadores actuales, los destinos asignados y el historial.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('reset-modal')">Cancelar</button>
+                <button class="btn-main" style="background: var(--accent-red); color: white;" onclick="confirmResetAction()">Sí, Reiniciar</button>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             6. MODAL DE AVISOS Y NOTIFICACIONES
+             ========================================================================== -->
+        <div id="notice-modal" class="modal hidden">
+            <div class="modal-header">
+                <h3 id="notice-title" style="color: var(--primary-yellow);">Aviso</h3>
+            </div>
+            <div class="modal-body" style="align-items: center; text-align: center; justify-content: center;">
+                <p id="notice-message" style="font-size: 1.1rem; color: var(--text-light);"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-main" onclick="closeModal('notice-modal')">Entendido</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==========================================================================
+         LÓGICA EN JAVASCRIPT (VANILLA JS)
+         ========================================================================== -->
+    <script>
+        /* Base de Datos de Localidades y Eventos */
+        const ARGENTINA_LOCATIONS = [
+            { name: "La Quiaca", province: "Jujuy", region: "Noroeste", desc: "Punto extremo norte de la mítica Ruta 40." },
+            { name: "Humahuaca", province: "Jujuy", region: "Noroeste", desc: "Famosa por su quebrada e historia colonial." },
+            { name: "Cafayate", province: "Salta", region: "Noroeste", desc: "Tierra de viñedos y formaciones rocosas." },
+            { name: "San Miguel de Tucumán", province: "Tucumán", region: "Noroeste", desc: "Cuna de la Independencia Argentina." },
+            { name: "Termas de Río Hondo", province: "Santiago del Estero", region: "Noroeste", desc: "Ciudad spa e importante centro termal." },
+            { name: "Iguazú", province: "Misiones", region: "Noreste", desc: "Hogar de las espectaculares Cataratas." },
+            { name: "Posadas", province: "Misiones", region: "Noreste", desc: "Portal de entrada a la selva misionera." },
+            { name: "Esteros del Iberá", province: "Corrientes", region: "Noreste", desc: "Reserva natural y humedales de gran fauna." },
+            { name: "Gualeguaychú", province: "Entre Ríos", region: "Litoral", desc: "Famosa por sus carnavales y playas de río." },
+            { name: "Mendoza Capital", province: "Mendoza", region: "Cuyo", desc: "Capital internacional del vino al pie de los Andes." },
+            { name: "San Rafael", province: "Mendoza", region: "Cuyo", desc: "Cañón del Atuel y turismo de aventura." },
+            { name: "Valle de la Luna", province: "San Juan", region: "Cuyo", desc: "Parque Provincial Ischigualasto." },
+            { name: "Córdoba Capital", province: "Córdoba", region: "Centro", desc: "Corazón universitario y mediterráneo del país." },
+            { name: "Villa Carlos Paz", province: "Córdoba", region: "Centro", desc: "Centro turístico junto al Lago San Roque." },
+            { name: "Rosario", province: "Santa Fe", region: "Centro", desc: "Cuna de la Bandera a orillas del Río Paraná." },
+            { name: "Tandil", province: "Buenos Aires", region: "Pampa", desc: "Sierras antiguas, productos regionales y quesos." },
+            { name: "Mar del Plata", province: "Buenos Aires", region: "Costa", desc: "La gran ciudad balnearia argentina." },
+            { name: "Bahía Blanca", province: "Buenos Aires", region: "Sur Pampa", desc: "Importante puerto del sur bonaerense." },
+            { name: "San Carlos de Bariloche", province: "Río Negro", region: "Patagonia", desc: "Lagos, montañas y chocolates artesanales." },
+            { name: "Las Grutas", province: "Río Negro", region: "Patagonia", desc: "Aguas cálidas en las costas patagónicas." },
+            { name: "Puerto Madryn", province: "Chubut", region: "Patagonia", desc: "Avistaje de ballenas francas australes." },
+            { name: "Esquel", province: "Chubut", region: "Patagonia", desc: "Estación del histórico tren La Trochita." },
+            { name: "Comodoro Rivadavia", province: "Chubut", region: "Patagonia", desc: "Capital nacional del petróleo." },
+            { name: "El Calafate", province: "Santa Cruz", region: "Patagonia", desc: "Tierra de glaciares y del Glaciar Perito Moreno." },
+            { name: "Río Gallegos", province: "Santa Cruz", region: "Patagonia", desc: "Capital provincial e hito del sur de la Ruta 40." },
+            { name: "Ushuaia", province: "Tierra del Fuego", region: "Fin del Mundo", desc: "La ciudad más austral del planeta." },
+            { name: "San Luis Capital", province: "San Luis", region: "Cuyo", desc: "Sierras, diques y clima privilegiado." },
+            { name: "La Rioja Capital", province: "La Rioja", region: "Noroeste", desc: "Acceso a la majestuosa Cuesta de Miranda." },
+            { name: "Catamarca Capital", province: "Catamarca", region: "Noroeste", desc: "Ruta de los Seismiles y valles pintorescos." },
+            { name: "Santa Rosa", province: "La Pampa", region: "Pampa", desc: "Corazón caldenal de la llanura pampeana." },
+            { name: "Neuquén Capital", province: "Neuquén", region: "Patagonia", desc: "Capital de la Patagonia norte y Vaca Muerta." },
+            { name: "San Martín de los Andes", province: "Neuquén", region: "Patagonia", desc: "Inicio del mítico Camino de los 7 Lagos." }
+        ];
+
+        const SPECIAL_EVENTS = [
+            {
+                type: "ypf",
+                title: "Estación de Servicio YPF",
+                subtitle: "¡Combustible Completo!",
+                desc: "Paraste a cargar nafta y tomar un café. Obtenés UN TIRO EXTRA de inmediato.",
+                actionText: "¡Tirás de nuevo!"
+            },
+            {
+                type: "pinchazo",
+                title: "Pinchazo de Goma",
+                subtitle: "¡Imprevisto en la Ruta!",
+                desc: "Se te pinchó un neumático en ripio. Tenés que cambiar la rueda de auxilio.",
+                actionText: "Perdés tu próximo turno."
+            },
+            {
+                type: "aca",
+                title: "Auxilio Mecánico ACA",
+                subtitle: "Automóvil Club Argentino",
+                desc: "Recibiste asistencia rápida en ruta. Avanzás 2 casilleros extra de regalo.",
+                actionText: "¡Bonificación especial!"
+            }
+        ];
+
+        /* Estado del juego */
+        let players = [];
+        let currentPlayerIndex = 0;
+        let selectedPlayerCount = 3;
+        let activeDeck = [];
+        let gameHistory = [];
+
+        window.onload = function() {
+            setPlayerCount(3);
+            renderDiceDots(1);
+        };
+
+        function setPlayerCount(count) {
+            selectedPlayerCount = count;
+            const buttons = document.querySelectorAll('.btn-player-count');
+            buttons.forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.innerText) === count);
+            });
+
+            const container = document.getElementById('player-inputs');
+            container.innerHTML = '';
+            for (let i = 1; i <= count; i++) {
+                container.innerHTML += `
+                    <div class="player-input-group">
+                        <span>Jugador ${i}:</span>
+                        <input type="text" id="player-name-${i}" value="Jugador ${i}" maxlength="15" onfocus="this.select()">
+                    </div>
+                `;
+            }
+        }
+
+        function startGame() {
+            players = [];
+            for (let i = 1; i <= selectedPlayerCount; i++) {
+                const nameInput = document.getElementById(`player-name-${i}`).value.trim();
+                players.push({
+                    id: i,
+                    name: nameInput || `Jugador ${i}`,
+                    activeCard: null,          // Guarda la tarjeta de destino actual
+                    completedDestinations: 0,  // Cantidad de destinos visitados
+                    skipNextTurn: false,
+                    hasExtraTurn: false
+                });
+            }
+
+            currentPlayerIndex = 0;
+            buildDeck();
+            
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            updateTurnUI();
+            logHistory("🏎️ ¡Comenzó la partida con " + players.length + " jugadores!");
+        }
+
+        function buildDeck() {
+            activeDeck = [];
+            ARGENTINA_LOCATIONS.forEach(loc => {
+                activeDeck.push({
+                    cardCategory: "location",
+                    title: loc.name,
+                    subtitle: `${loc.province} (${loc.region})`,
+                    desc: loc.desc
+                });
+            });
+
+            for (let i = 0; i < 3; i++) {
+                SPECIAL_EVENTS.forEach(ev => {
+                    activeDeck.push({
+                        cardCategory: "event",
+                        eventType: ev.type,
+                        title: ev.title,
+                        subtitle: ev.subtitle,
+                        desc: ev.desc,
+                        actionText: ev.actionText
+                    });
+                });
+            }
+
+            for (let i = activeDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeDeck[i], activeDeck[j]] = [activeDeck[j], activeDeck[i]];
+            }
+        }
+
+        /* Levantar una nueva tarjeta del mazo */
+        function drawCard() {
+            const player = players[currentPlayerIndex];
+
+            // Si el mazo se vacía, volver a mezclar
+            if (activeDeck.length === 0) {
+                buildDeck();
+                logHistory("🔀 Se volvió a mezclar el mazo de tarjetas.");
+            }
+
+            playClickSound();
+            const drawn = activeDeck.pop();
+
+            if (drawn.cardCategory === "location") {
+                player.activeCard = drawn;
+                logHistory(`${player.name} tiene un nuevo destino: <b>${drawn.title}</b> (${drawn.subtitle})`);
+            } else {
+                // Si es evento especial
+                if (drawn.eventType === "ypf") {
+                    player.hasExtraTurn = true;
+                } else if (drawn.eventType === "pinchazo") {
+                    player.skipNextTurn = true;
+                }
+                
+                renderCardUI(drawn, true);
+                logHistory(`⚠️ ${player.name} sacó evento: <b>${drawn.title}</b>`);
+                updateTurnUI();
+                return;
+            }
+
+            updateTurnUI();
+        }
+
+        /* Dar por completado el destino actual */
+        function completeCurrentDestination() {
+            const player = players[currentPlayerIndex];
+            if (!player.activeCard) return;
+
+            playClickSound();
+            player.completedDestinations++;
+            logHistory(`🏁 ¡<b>${player.name}</b> llegó con éxito a <b>${player.activeCard.title}</b>!`);
+
+            showNotice("¡Destino Completado!", `¡Felicitaciones ${player.name}! Llegaste a ${player.activeCard.title}. Podés levantar un nuevo destino o pasar el turno.`);
+
+            player.activeCard = null; // Se libera el destino
+            updateTurnUI();
+        }
+
+        function nextTurn() {
+            const player = players[currentPlayerIndex];
+
+            // Si el jugador sacó un tiro extra de YPF
+            if (player.hasExtraTurn) {
+                player.hasExtraTurn = false;
+                logHistory(`⛽ ¡${player.name} aprovecha su tiro extra YPF!`);
+                showNotice("Tiro Extra YPF", `¡${player.name}, tenés un tiro extra por cargar nafta en YPF!`);
+                updateTurnUI();
+                return;
+            }
+
+            // Pasar al siguiente jugador
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+
+            const nextPlayer = players[currentPlayerIndex];
+            
+            // Verificar si el jugador entrante tenía la goma pinchada
+            if (nextPlayer.skipNextTurn) {
+                nextPlayer.skipNextTurn = false;
+                logHistory(`🛑 ${nextPlayer.name} perdió su turno por Pinchazo de Goma.`);
+                showNotice("Turno Suspendido", `¡${nextPlayer.name} tenía la goma pinchada y pierde este turno!`);
+                nextTurn(); // Pasa automáticamente al siguiente
+                return;
+            }
+
+            updateTurnUI();
+        }
+
+        /* Renderizar la tarjeta activa y los botones disponibles */
+        function updateTurnUI() {
+            const player = players[currentPlayerIndex];
+            
+            document.getElementById('current-player-name').innerText = player.name;
+            document.getElementById('current-player-score').innerText = `🏁 Ciudades visitadas: ${player.completedDestinations}`;
+
+            // Estado
+            const statusBadge = document.getElementById('player-status');
+            if (player.hasExtraTurn) {
+                statusBadge.innerText = "⛽ ¡Tiro Extra YPF!";
+                statusBadge.className = "status-badge warning";
+            } else if (player.skipNextTurn) {
+                statusBadge.innerText = "⚠️ Próximo turno suspendido";
+                statusBadge.className = "status-badge warning";
+            } else {
+                statusBadge.innerText = "En ruta";
+                statusBadge.className = "status-badge";
+            }
+
+            // Botones de acción
+            const btnDraw = document.getElementById('btn-draw-card');
+            const btnComplete = document.getElementById('btn-complete-destination');
+            const btnNext = document.getElementById('btn-next-turn');
+
+            if (player.activeCard) {
+                // Si ya tiene un destino asignado
+                renderCardUI(player.activeCard, false);
+                btnDraw.classList.add('hidden');
+                btnComplete.classList.remove('hidden');
+                btnNext.classList.remove('hidden');
+            } else {
+                // Si no tiene destino asignado
+                renderEmptyCardUI();
+                btnDraw.classList.remove('hidden');
+                btnComplete.classList.add('hidden');
+                btnNext.classList.remove('hidden');
+            }
+        }
+
+        function renderCardUI(cardData, isTemporaryEvent) {
+            const cardDisplay = document.getElementById('card-display');
+            cardDisplay.className = "card";
+
+            if (cardData.cardCategory === "location") {
+                cardDisplay.classList.add("location");
+                cardDisplay.innerHTML = `
+                    <div class="card-type">DESTINO ACTUAL</div>
+                    <div class="card-title">${cardData.title}</div>
+                    <div class="card-subtitle">${cardData.subtitle}</div>
+                    <div class="card-desc">${cardData.desc}</div>
+                    <div class="card-footer">Dirigite a esta ciudad en el tablero físico</div>
+                `;
+            } else {
+                if (cardData.eventType === "ypf") cardDisplay.classList.add("event-ypf");
+                else if (cardData.eventType === "pinchazo") cardDisplay.classList.add("event-pinchazo");
+                else cardDisplay.classList.add("location");
+
+                cardDisplay.innerHTML = `
+                    <div class="card-type">EVENTO ESPECIAL</div>
+                    <div class="card-title">${cardData.title}</div>
+                    <div class="card-subtitle">${cardData.subtitle}</div>
+                    <div class="card-desc">${cardData.desc}</div>
+                    <div class="card-footer" style="color: var(--primary-yellow); font-weight: bold;">${cardData.actionText}</div>
+                `;
+            }
+        }
+
+        function renderEmptyCardUI() {
+            const cardDisplay = document.getElementById('card-display');
+            cardDisplay.className = "card";
+            cardDisplay.innerHTML = `
+                <div class="card-type">Mazo Virtual</div>
+                <div class="card-title">Sin Destino Activo</div>
+                <div class="card-subtitle">Presioná "Levantar Tarjeta"</div>
+                <div class="card-desc">Obtené tu próxima ciudad de destino para comenzar tu recorrido.</div>
+                <div class="card-footer">Rutas Nacionales Arg</div>
+            `;
+        }
+
+        /* Dado Virtual */
+        function rollDice() {
+            const dice = document.getElementById('dice');
+            playDiceRollSound();
+
+            let rolls = 0;
+            const interval = setInterval(() => {
+                const randomVal = Math.floor(Math.random() * 6) + 1;
+                renderDiceDots(randomVal);
+                dice.style.transform = `rotate(${Math.random() * 20 - 10}deg) scale(1.05)`;
+                rolls++;
+
+                if (rolls > 10) {
+                    clearInterval(interval);
+                    const finalVal = Math.floor(Math.random() * 6) + 1;
+                    renderDiceDots(finalVal);
+                    dice.style.transform = `scale(1)`;
+                    logHistory(`🎲 ${players[currentPlayerIndex].name} tiró el dado y sacó un **${finalVal}**`);
+                }
+            }, 60);
+        }
+
+        function renderDiceDots(value) {
+            const dots = document.querySelectorAll('.dice .dot');
+            dots.forEach(d => d.style.opacity = '0');
+
+            const dotMap = {
+                1: [3],
+                2: [0, 4],
+                3: [0, 3, 4],
+                4: [0, 1, 3, 4],
+                5: [0, 1, 2, 3, 4],
+                6: [0, 1, 3, 4, 5, 6]
+            };
+
+            if (dotMap[value]) {
+                dotMap[value].forEach(idx => {
+                    dots[idx].style.opacity = '1';
+                });
+            }
+        }
+
+        /* Modales y Reinicio */
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showNotice(title, message) {
+            document.getElementById('notice-title').innerText = title;
+            document.getElementById('notice-message').innerText = message;
+            openModal('notice-modal');
+        }
+
+        function confirmResetAction() {
+            closeModal('reset-modal');
+            gameHistory = [];
+            document.getElementById('modal-log-body').innerHTML = '';
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+        }
+
+        function logHistory(msg) {
+            gameHistory.unshift(msg);
+            const container = document.getElementById('modal-log-body');
+            container.innerHTML = gameHistory.map(item => `<div class="log-item">${item}</div>`).join('');
+        }
+
+        /* Audio Sintetizado */
+        function playClickSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.08);
+            } catch (e) {}
+        }
+
+        function playDiceRollSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(600, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.15);
+            } catch (e) {}
+        }
+    </script>
+</body>
+</html>
